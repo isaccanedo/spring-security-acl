@@ -62,3 +62,29 @@ Para poder usar Spring ACL em nosso projeto, vamos primeiro definir nossas depen
     <version>2.6.11</version>
 </dependency>
 ```
+
+Spring ACL requer um cache para armazenar Object Identity e entradas ACL, então vamos usar o Ehcache aqui. E, para dar suporte ao Ehcache no Spring, também precisamos do spring-context-support.
+
+Quando não estamos trabalhando com Spring Boot, precisamos adicionar versões explicitamente. Eles podem ser verificados no Maven Central: spring-security-acl, spring-security-config, spring-context-support, ehcache-core.
+
+### 2.3. Configuração relacionada a ACL
+Precisamos proteger todos os métodos que retornam objetos de domínio protegidos, ou fazem alterações no objeto, habilitando o Global Method Security:
+
+```
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+public class AclMethodSecurityConfiguration 
+  extends GlobalMethodSecurityConfiguration {
+
+    @Autowired
+    MethodSecurityExpressionHandler 
+      defaultMethodSecurityExpressionHandler;
+
+    @Override
+    protected MethodSecurityExpressionHandler createExpressionHandler() {
+        return defaultMethodSecurityExpressionHandler;
+    }
+}
+```
+
+Também vamos habilitar o controle de acesso baseado em expressão definindo prePostEnabled como true para usar Spring Expression Language (SpEL). Além disso, precisamos de um manipulador de expressão com suporte a ACL:
