@@ -88,3 +88,16 @@ public class AclMethodSecurityConfiguration
 ```
 
 Também vamos habilitar o controle de acesso baseado em expressão definindo prePostEnabled como true para usar Spring Expression Language (SpEL). Além disso, precisamos de um manipulador de expressão com suporte a ACL:
+
+```
+@Bean
+public MethodSecurityExpressionHandler 
+  defaultMethodSecurityExpressionHandler() {
+    DefaultMethodSecurityExpressionHandler expressionHandler
+      = new DefaultMethodSecurityExpressionHandler();
+    AclPermissionEvaluator permissionEvaluator 
+      = new AclPermissionEvaluator(aclService());
+    expressionHandler.setPermissionEvaluator(permissionEvaluator);
+    return expressionHandler;
+}
+```
