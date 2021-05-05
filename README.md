@@ -1,4 +1,4 @@
-## Spring Security ACL
+## Spring Boot Security ACL
 
 # 1. Introdução
 Lista de controle de acesso (ACL) é uma lista de permissões anexadas a um objeto. Uma ACL especifica quais identidades são concedidas a quais operações em um determinado objeto.
