@@ -101,3 +101,78 @@ public MethodSecurityExpressionHandler
     return expressionHandler;
 }
 ```
+
+Portanto, atribuímos AclPermissionEvaluator ao DefaultMethodSecurityExpressionHandler. O avaliador precisa de um MutableAclService para carregar configurações de permissão e definições de objeto de domínio do banco de dados.
+
+Para simplificar, usamos o JdbcMutableAclService fornecido:
+
+```
+@Bean 
+public JdbcMutableAclService aclService() { 
+    return new JdbcMutableAclService(
+      dataSource, lookupStrategy(), aclCache()); 
+}
+```
+
+Como seu nome, o JdbcMutableAclService usa JDBCTemplate para simplificar o acesso ao banco de dados. Ele precisa de um DataSource (para JDBCTemplate), LookupStrategy (fornece uma pesquisa otimizada ao consultar o banco de dados) e um AclCache (cache de entradas ACL e identidade de objeto).
+
+Novamente, para simplificar, usamos BasicLookupStrategy e EhCacheBasedAclCache fornecidos.
+
+```
+@Autowired
+DataSource dataSource;
+
+@Bean
+public AclAuthorizationStrategy aclAuthorizationStrategy() {
+    return new AclAuthorizationStrategyImpl(
+      new SimpleGrantedAuthority("ROLE_ADMIN"));
+}
+
+@Bean
+public PermissionGrantingStrategy permissionGrantingStrategy() {
+    return new DefaultPermissionGrantingStrategy(
+      new ConsoleAuditLogger());
+}
+
+@Bean
+public EhCacheBasedAclCache aclCache() {
+    return new EhCacheBasedAclCache(
+      aclEhCacheFactoryBean().getObject(), 
+      permissionGrantingStrategy(), 
+      aclAuthorizationStrategy()
+    );
+}
+
+@Bean
+public EhCacheFactoryBean aclEhCacheFactoryBean() {
+    EhCacheFactoryBean ehCacheFactoryBean = new EhCacheFactoryBean();
+    ehCacheFactoryBean.setCacheManager(aclCacheManager().getObject());
+    ehCacheFactoryBean.setCacheName("aclCache");
+    return ehCacheFactoryBean;
+}
+
+@Bean
+public EhCacheManagerFactoryBean aclCacheManager() {
+    return new EhCacheManagerFactoryBean();
+}
+
+@Bean 
+public LookupStrategy lookupStrategy() { 
+    return new BasicLookupStrategy(
+      dataSource, 
+      aclCache(), 
+      aclAuthorizationStrategy(), 
+      new ConsoleAuditLogger()
+    ); 
+}
+```
+
+Aqui, a AclAuthorizationStrategy é responsável por concluir se um usuário atual possui todas as permissões necessárias em determinados objetos ou não.
+
+Ele precisa do suporte de PermissionGrantingStrategy, que define a lógica para determinar se uma permissão é concedida a um determinado SID.
+
+# 3. Método de segurança com Spring ACL
+Até agora, fizemos todas as configurações necessárias. Agora podemos colocar a regra de verificação necessária em nossos métodos seguros.
+
+Por padrão, Spring ACL se refere à classe BasePermission para todas as permissões disponíveis. Basicamente, temos uma permissão de LEITURA, ESCRITA, CRIAÇÃO, EXCLUIR e ADMINISTRAÇÃO.
+
