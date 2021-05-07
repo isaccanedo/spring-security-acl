@@ -176,3 +176,15 @@ Até agora, fizemos todas as configurações necessárias. Agora podemos colocar
 
 Por padrão, Spring ACL se refere à classe BasePermission para todas as permissões disponíveis. Basicamente, temos uma permissão de LEITURA, ESCRITA, CRIAÇÃO, EXCLUIR e ADMINISTRAÇÃO.
 
+Vamos tentar definir algumas regras de segurança:
+
+```
+@PostFilter("hasPermission(filterObject, 'READ')")
+List<NoticeMessage> findAll();
+    
+@PostAuthorize("hasPermission(returnObject, 'READ')")
+NoticeMessage findById(Integer id);
+    
+@PreAuthorize("hasPermission(#noticeMessage, 'WRITE')")
+NoticeMessage save(@Param("noticeMessage")NoticeMessage noticeMessage);
+```
