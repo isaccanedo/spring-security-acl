@@ -188,3 +188,9 @@ NoticeMessage findById(Integer id);
 @PreAuthorize("hasPermission(#noticeMessage, 'WRITE')")
 NoticeMessage save(@Param("noticeMessage")NoticeMessage noticeMessage);
 ```
+
+Após a execução do método findAll(), @PostFilter será disparado. A regra exigida hasPermission (filterObject, ‘READ '), significa retornar apenas aqueles NoticeMessage para os quais o usuário atual tem permissão READ.
+
+Da mesma forma, @PostAuthorize é disparado após a execução do método findById(), certifique-se de retornar apenas o objeto NoticeMessage se o usuário atual tiver permissão READ nele. Caso contrário, o sistema lançará uma AccessDeniedException.
+
+Por outro lado, o sistema dispara a anotação @PreAuthorize antes de invocar o método save(). Ele decidirá onde o método correspondente pode ser executado ou não. Caso contrário, AccessDeniedException será lançado.
