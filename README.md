@@ -194,3 +194,37 @@ Após a execução do método findAll(), @PostFilter será disparado. A regra ex
 Da mesma forma, @PostAuthorize é disparado após a execução do método findById(), certifique-se de retornar apenas o objeto NoticeMessage se o usuário atual tiver permissão READ nele. Caso contrário, o sistema lançará uma AccessDeniedException.
 
 Por outro lado, o sistema dispara a anotação @PreAuthorize antes de invocar o método save(). Ele decidirá onde o método correspondente pode ser executado ou não. Caso contrário, AccessDeniedException será lançado.
+
+# 4. Em ação
+Agora vamos testar todas essas configurações usando JUnit. Usaremos o banco de dados H2 para manter a configuração o mais simples possível.
+
+Precisamos adicionar:
+
+```
+<dependency>
+  <groupId>com.h2database</groupId>
+  <artifactId>h2</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-test</artifactId>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.security</groupId>
+  <artifactId>spring-security-test</artifactId>
+  <scope>test</scope>
+</dependency>
+```
+
+### 4.1. O cenário
+Neste cenário, teremos dois usuários (gerente, hr) e uma função de usuário (ROLE_EDITOR), então nosso acl_sid será:
+
+```
+INSERT INTO acl_sid (id, principal, sid) VALUES
+  (1, 1, 'manager'),
+  (2, 1, 'hr'),
+  (3, 0, 'ROLE_EDITOR');
+```
