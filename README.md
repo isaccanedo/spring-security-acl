@@ -228,3 +228,42 @@ INSERT INTO acl_sid (id, principal, sid) VALUES
   (2, 1, 'hr'),
   (3, 0, 'ROLE_EDITOR');
 ```
+Então, precisamos declarar a classe NoticeMessage em acl_class. E três instâncias da classe NoticeMessage serão inseridas em system_message.
+
+Além disso, os registros correspondentes para essas 3 instâncias devem ser declarados em acl_object_identity:
+
+```
+INSERT INTO acl_class (id, class) VALUES
+  (1, 'com.baeldung.acl.persistence.entity.NoticeMessage');
+
+INSERT INTO system_message(id,content) VALUES 
+  (1,'First Level Message'),
+  (2,'Second Level Message'),
+  (3,'Third Level Message');
+
+INSERT INTO acl_object_identity 
+  (id, object_id_class, object_id_identity, 
+  parent_object, owner_sid, entries_inheriting) 
+  VALUES
+  (1, 1, 1, NULL, 3, 0),
+  (2, 1, 2, NULL, 3, 0),
+  (3, 1, 3, NULL, 3, 0);
+```
+
+Inicialmente, concedemos permissões READ e WRITE no primeiro objeto (id = 1) para o gerenciador de usuários. Enquanto isso, qualquer usuário com ROLE_EDITOR terá permissão READ em todos os três objetos, mas apenas possuirá permissão WRITE no terceiro objeto (id = 3). Além disso, o usuário hr terá apenas permissão de LEITURA no segundo objeto.
+
+Aqui, como usamos a classe Spring ACL BasePermission padrão para verificação de permissão, o valor da máscara da permissão READ será 1 e o valor da máscara da permissão WRITE será 2. Nossos dados em acl_entry serão:
+
+```
+INSERT INTO acl_entry 
+  (id, acl_object_identity, ace_order, 
+  sid, mask, granting, audit_success, audit_failure) 
+  VALUES
+  (1, 1, 1, 1, 1, 1, 1, 1),
+  (2, 1, 2, 1, 2, 1, 1, 1),
+  (3, 1, 3, 3, 1, 1, 1, 1),
+  (4, 2, 1, 2, 1, 1, 1, 1),
+  (5, 2, 2, 3, 1, 1, 1, 1),
+  (6, 3, 1, 3, 1, 1, 1, 1),
+  (7, 3, 2, 3, 2, 1, 1, 1);
+```
