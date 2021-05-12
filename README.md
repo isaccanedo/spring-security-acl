@@ -267,3 +267,23 @@ INSERT INTO acl_entry
   (6, 3, 1, 3, 1, 1, 1, 1),
   (7, 3, 2, 3, 2, 1, 1, 1);
 ```
+
+### 4.2. Caso de teste
+Em primeiro lugar, tentamos chamar o método findAll.
+
+Como nossa configuração, o método retorna apenas aquelas NoticeMessage nas quais o usuário tem permissão READ.
+
+Portanto, esperamos que a lista de resultados contenha apenas a primeira mensagem:
+
+```
+@Test
+@WithMockUser(username = "manager")
+public void 
+  givenUserManager_whenFindAllMessage_thenReturnFirstMessage(){
+    List<NoticeMessage> details = repo.findAll();
+ 
+    assertNotNull(details);
+    assertEquals(1,details.size());
+    assertEquals(FIRST_MESSAGE_ID,details.get(0).getId());
+}
+```
