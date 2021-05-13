@@ -287,3 +287,7 @@ public void
     assertEquals(FIRST_MESSAGE_ID,details.get(0).getId());
 }
 ```
+
+Em seguida, tentamos chamar o mesmo método com qualquer usuário que tenha a função - ROLE_EDITOR. Observe que, neste caso, esses usuários têm a permissão READ em todos os três objetos.
+
+Portanto, esperamos que a lista de resultados contenha as três mensagens:
