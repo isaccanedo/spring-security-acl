@@ -291,3 +291,37 @@ public void
 Em seguida, tentamos chamar o mesmo método com qualquer usuário que tenha a função - ROLE_EDITOR. Observe que, neste caso, esses usuários têm a permissão READ em todos os três objetos.
 
 Portanto, esperamos que a lista de resultados contenha as três mensagens:
+
+```
+@Test
+@WithMockUser(roles = {"EDITOR"})
+public void 
+  givenRoleEditor_whenFindAllMessage_thenReturn3Message(){
+    List<NoticeMessage> details = repo.findAll();
+    
+    assertNotNull(details);
+    assertEquals(3,details.size());
+}
+```
+
+A seguir, usando o usuário manager, tentaremos obter a primeira mensagem por id e atualizar seu conteúdo - o que deve funcionar bem:
+
+```
+@Test
+@WithMockUser(username = "manager")
+public void 
+  givenUserManager_whenFind1stMessageByIdAndUpdateItsContent_thenOK(){
+    NoticeMessage firstMessage = repo.findById(FIRST_MESSAGE_ID);
+    assertNotNull(firstMessage);
+    assertEquals(FIRST_MESSAGE_ID,firstMessage.getId());
+        
+    firstMessage.setContent(EDITTED_CONTENT);
+    repo.save(firstMessage);
+        
+    NoticeMessage editedFirstMessage = repo.findById(FIRST_MESSAGE_ID);
+ 
+    assertNotNull(editedFirstMessage);
+    assertEquals(FIRST_MESSAGE_ID,editedFirstMessage.getId());
+    assertEquals(EDITTED_CONTENT,editedFirstMessage.getContent());
+}
+```
