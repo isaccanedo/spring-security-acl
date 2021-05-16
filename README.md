@@ -325,3 +325,48 @@ public void
     assertEquals(EDITTED_CONTENT,editedFirstMessage.getContent());
 }
 ```
+
+Mas se qualquer usuário com a função ROLE_EDITOR atualizar o conteúdo da primeira mensagem - nosso sistema lançará uma AccessDeniedException:
+
+```
+@Test(expected = AccessDeniedException.class)
+@WithMockUser(roles = {"EDITOR"})
+public void 
+  givenRoleEditor_whenFind1stMessageByIdAndUpdateContent_thenFail(){
+    NoticeMessage firstMessage = repo.findById(FIRST_MESSAGE_ID);
+ 
+    assertNotNull(firstMessage);
+    assertEquals(FIRST_MESSAGE_ID,firstMessage.getId());
+ 
+    firstMessage.setContent(EDITTED_CONTENT);
+    repo.save(firstMessage);
+}
+```
+
+Da mesma forma, o usuário hr pode encontrar a segunda mensagem por id, mas não conseguirá atualizá-la:
+
+```
+@Test
+@WithMockUser(username = "hr")
+public void givenUsernameHr_whenFindMessageById2_thenOK(){
+    NoticeMessage secondMessage = repo.findById(SECOND_MESSAGE_ID);
+    assertNotNull(secondMessage);
+    assertEquals(SECOND_MESSAGE_ID,secondMessage.getId());
+}
+
+@Test(expected = AccessDeniedException.class)
+@WithMockUser(username = "hr")
+public void givenUsernameHr_whenUpdateMessageWithId2_thenFail(){
+    NoticeMessage secondMessage = new NoticeMessage();
+    secondMessage.setId(SECOND_MESSAGE_ID);
+    secondMessage.setContent(EDITTED_CONTENT);
+    repo.save(secondMessage);
+}
+```
+
+# 5. Conclusão
+Passamos pela configuração básica e pelo uso do Spring ACL neste artigo.
+
+Como sabemos, Spring ACL exigia tabelas específicas para gerenciamento de objeto, princípio /autoridade e configuração de permissão. Todas as interações com essas tabelas, especialmente ação de atualização, devem passar por AclService. Exploraremos esse serviço para ações CRUD básicas em um artigo futuro.
+
+Por padrão, estamos restritos a permissões predefinidas na classe BasePermission.
